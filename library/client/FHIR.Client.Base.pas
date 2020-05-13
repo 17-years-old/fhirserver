@@ -134,6 +134,7 @@ Type
     function readResourceV(atype : TFhirResourceTypeV; id : String) : TFHIRResourceV; virtual; abstract;
     function vreadResourceV(atype : TFhirResourceTypeV; id, vid : String) : TFHIRResourceV; virtual; abstract;
     function updateResourceV(resource : TFHIRResourceV) : TFHIRResourceV; overload; virtual; abstract;
+    function updateResourceV(resource : TFHIRResourceV; search: String) : TFHIRResourceV; overload; virtual; abstract;
     function patchResourceV(atype : TFhirResourceTypeV; id : String; params : TFHIRResourceV) : TFHIRResourceV; overload; virtual; abstract;
     function patchResourceV(atype : TFhirResourceTypeV; id : String; patch : TJsonArray) : TFHIRResourceV; overload; virtual; abstract;
     procedure deleteResourceV(atype : TFHIRResourceTypeV; id : String); virtual; abstract;
@@ -212,6 +213,7 @@ Type
     function readResourceV(atype : TFhirResourceTypeV; id : String) : TFHIRResourceV;
     function vreadResourceV(atype : TFhirResourceTypeV; id, vid : String) : TFHIRResourceV;
     function updateResourceV(resource : TFHIRResourceV) : TFHIRResourceV; overload;
+    function updateResourceV(resource : TFHIRResourceV; search: String) : TFHIRResourceV; overload;
     function patchResourceV(atype : TFhirResourceTypeV; id : String; params : TFHIRResourceV) : TFHIRResourceV; overload;
     function patchResourceV(atype : TFhirResourceTypeV; id : String; patch : TJsonArray) : TFHIRResourceV; overload;
     procedure deleteResourceV(atype : TFHIRResourceTypeV; id : String);
@@ -403,6 +405,12 @@ begin
   result := FCommunicator.transactionV(bundle);
 end;
 
+function TFhirClientV.updateResourceV(resource: TFHIRResourceV;
+  search: String): TFHIRResourceV;
+begin
+  result := FCommunicator.updateResourceV(resource, search);
+end;
+
 function TFhirClientV.createResourceV(resource : TFHIRResourceV; var id : String) : TFHIRResourceV;
 begin
   result := FCommunicator.createResourceV(resource, id);
@@ -420,7 +428,7 @@ end;
 
 function TFhirClientV.updateResourceV(resource : TFHIRResourceV) : TFHIRResourceV;
 begin
-  result := FCommunicator.updateResourceV(resource);
+   result := updateResourceV(resource, '');
 end;
 
 procedure TFhirClientV.deleteResourceV(atype : TFHIRResourceTypeV; id : String);

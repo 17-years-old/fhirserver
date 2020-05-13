@@ -54,6 +54,7 @@ Type
     function readResource(atype : TFhirResourceType; id : String) : TFHIRResource;
     function vreadResource(atype : TFhirResourceType; id, vid : String) : TFHIRResource;
     function updateResource(resource : TFhirResource) : TFHIRResource; overload;
+    function updateResource(resource : TFhirResource; search : String) : TFHIRResource; overload;
     function patchResource(atype : TFhirResourceType; id : String; params : TFHIRParameters) : TFHIRResource; overload;
     function patchResource(atype : TFhirResourceType; id : String; patch : TJsonArray) : TFHIRResource; overload;
     procedure deleteResource(atype : TFhirResourceType; id : String);
@@ -112,6 +113,12 @@ begin
   result := transactionV(bundle) as TFhirBundle;
 end;
 
+function TFhirClient4.updateResource(resource: TFhirResource;
+  search: String): TFHIRResource;
+begin
+   result := updateResourceV(resource, search) as TFhirResource;
+end;
+
 function TFhirClient4.createResource(resource : TFhirResource; var id : String) : TFHIRResource;
 begin
   result := createResourceV(resource, id) as TFhirResource;
@@ -129,7 +136,7 @@ end;
 
 function TFhirClient4.updateResource(resource : TFhirResource) : TFHIRResource;
 begin
-  result := updateResourceV(resource) as TFhirResource;
+  result := updateResource(resource, '') as TFhirResource;
 end;
 
 procedure TFhirClient4.deleteResource(atype : TFhirResourceType; id : String);

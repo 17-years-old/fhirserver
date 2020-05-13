@@ -112,6 +112,7 @@ type
     function readResourceV(atype : TFhirResourceTypeV; id : String) : TFHIRResourceV; override;
     function vreadResourceV(atype : TFhirResourceTypeV; id, vid : String) : TFHIRResourceV; override;
     function updateResourceV(resource : TFHIRResourceV) : TFHIRResourceV; overload; override;
+    function updateResourceV(resource : TFHIRResourceV; search: String) : TFHIRResourceV; overload; override;
     function patchResourceV(atype : TFhirResourceTypeV; id : String; params : TFHIRResourceV) : TFHIRResourceV; overload; override;
     function patchResourceV(atype : TFhirResourceTypeV; id : String; patch : TJsonArray) : TFHIRResourceV; overload; override;
     procedure deleteResourceV(atype : TFHIRResourceTypeV; id : String); override;
@@ -722,6 +723,28 @@ begin
   end;
 end;
 
+function TFHIRHTTPCommunicator.updateResourceV(resource: TFHIRResourceV;
+  search: String): TFHIRResourceV;
+Var
+  src : TStream;
+  headers : THTTPHeaders;
+  vId : String;
+begin
+  vId := getResourceVersionId(resource);
+  if vId <> '' then
+    SetHeader('Content-Location', MakeUrlPath(resource.fhirType+'/'+resource.id+'/history/'+vId));
+
+  src := serialise(resource);
+  try
+    if search <> '' then
+      result := fetchResource(MakeUrl(resource.fhirType+'?'+search), httpPut, src, headers)
+    else
+      result := fetchResource(MakeUrl(resource.fhirType+'/'+resource.id), httpPut, src, headers);
+  finally
+    src.free;
+  end;
+end;
+
 function TFHIRHTTPCommunicator.createResourceV(resource: TFhirResourceV; var id : String): TFHIRResourceV;
 Var
   src : TStream;
@@ -769,21 +792,8 @@ begin
 end;
 
 function TFHIRHTTPCommunicator.updateResourceV(resource : TFhirResourceV) : TFHIRResourceV;
-Var
-  src : TStream;
-  headers : THTTPHeaders;
-  vId : String;
 begin
-  vId := getResourceVersionId(resource);
-  if vId <> '' then
-    SetHeader('Content-Location', MakeUrlPath(resource.fhirType+'/'+resource.id+'/history/'+vId));
-
-  src := serialise(resource);
-  try
-    result := fetchResource(MakeUrl(resource.fhirType+'/'+resource.id), httpPut, src, headers);
-  finally
-    src.free;
-  end;
+  Result := updateResourceV(resource, '')
 end;
 
 procedure TFHIRHTTPCommunicator.deleteResourceV(atype : TFhirResourceTypeV; id : String);
